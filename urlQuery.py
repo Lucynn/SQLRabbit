@@ -35,3 +35,7 @@ def sendReq(url, params=None, data=None, headers=None, timeout=5, allow_redirect
         print (Fore.RED + f"[-] Error executing GET query: {e}" + Fore.RESET)
         exit()
         return None
+    except KeyboardInterrupt:
+        print (Fore.YELLOW + f"[*] Exiting" + Fore.RESET)
+        exit()
+        return None
