@@ -156,7 +156,7 @@ def findVuln(url, paramValues, payload, trueFalsePayloads, d, cookies=None):
                 return True, params, vulnPoint
         if not success:
             print (Fore.RED + "[-] Cound not find vulnerable point" + Fore.RESET)
-            return False
+            return False, params, vulnPoint
 
 def findTime(url, paramValues, payload, d, cookies=None):
     print (Fore.YELLOW + "[*] Finding Vulnerable Points..." + Fore.RESET)
@@ -175,7 +175,7 @@ def findTime(url, paramValues, payload, d, cookies=None):
                 return True, params, vulnPoint
         if not success:
             print (Fore.RED + "[-] Cound not find vulnerable point" + Fore.RESET)
-            return False
+            return False, params, vulnPoint
 
 def booleanBased(args):
         url = args.url
