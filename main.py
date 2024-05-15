@@ -129,7 +129,6 @@ def extractTimeBased(url, paramValues, vulnParam, payload, d, tbl=None, clm=None
             mFunc = getattr(modify, func)
             print (Fore.YELLOW + f"[*] Starting modification: {func}" + Fore.RESET)
             r2, info = extractTimeMain(url, paramValues, vulnParam, payload, d, tbl=tbl, clm=clm)
-            print (f"Time: {r2}")
             if r2:
                 print (Fore.GREEN + f"[+] Vulnerability Found with modification: {func} in {vulnParam} parameter" + Fore.RESET)
                 displayInfo(info)
