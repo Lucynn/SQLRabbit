@@ -263,19 +263,20 @@ args = parser.parse_args()
 if not args.url:
     print (Fore.RED + "Error: You must provide a valid URL" + Fore.RESET)  
 else:
-    if "B" in args.technique or "b" in args.technique:
-        booleanBased(args)
-    elif "T" in args.technique or "t" in args.technique:
-        timeBased(args)
-    elif "BT" in args.technique or "bt" in args.technique:
-        if not booleanBased(args):
-            if not timeBased(args):
-                print (Fore.RED + "[-] None of the Techniques Worked :(" + Fore.RESET)
-    elif "TB" in args.technique or "tb" in args.technique:
-        if not timeBased(args):
+    if args.technique is not None:
+        if "B" in args.technique or "b" in args.technique:
+            booleanBased(args)
+        elif "T" in args.technique or "t" in args.technique:
+            timeBased(args)
+        elif "BT" in args.technique or "bt" in args.technique:
             if not booleanBased(args):
-                print (Fore.RED + "[-] None of the Techniques Worked :(" + Fore.RESET)
-    elif not args.technique:
+                if not timeBased(args):
+                    print (Fore.RED + "[-] None of the Techniques Worked :(" + Fore.RESET)
+        elif "TB" in args.technique or "tb" in args.technique:
+            if not timeBased(args):
+                if not booleanBased(args):
+                    print (Fore.RED + "[-] None of the Techniques Worked :(" + Fore.RESET)
+    else:
         if not booleanBased(args):
             if not timeBased(args):
                 print (Fore.RED + "[-] None of the Techniques Worked :(" + Fore.RESET)
