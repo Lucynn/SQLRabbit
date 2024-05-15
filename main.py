@@ -120,7 +120,6 @@ def nonBooleanBasedOptimisedSQLANDing(url, paramValues, vulnParam, payload1, pay
 def extractTimeBased(url, paramValues, vulnParam, payload, d, tbl=None, clm=None):
     print (Fore.YELLOW + "[*] Dumping Database with Time-Based Technique" + Fore.RESET)
     r, info = extractTimeMain(url, paramValues, vulnParam, payload, d, tbl=tbl, clm=clm)
-    print (f"Time: {r}")
     if r:
         displayInfo(info)
         return True
