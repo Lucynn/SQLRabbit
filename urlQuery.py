@@ -6,16 +6,23 @@ import urllib.parse
 from colorama import Fore
 
 # query
-def sendReq(url, params=None, data=None, headers=None, timeout=5, allow_redirects=False):
+def sendReq(url, params=None, data=None, headers=None, cookies=None, timeout=5, allow_redirects=False):
     try:
+        if cookies is not None:
+            x = cookies.split("=")
+            c = {
+                x[0]:x[1]
+            }
+        else:
+            c = None
         # If parameters are set
         if params:
             # Encode parameter values
             encParams = urllib.parse.urlencode(params, safe='/%+')
             url += '?' + encParams
-            r = requests.get(url, headers=headers, timeout=timeout, allow_redirects=allow_redirects)
+            r = requests.get(url, headers=headers, cookies=c, timeout=timeout, allow_redirects=allow_redirects)
         elif data:
-            r = requests.post(url, data=data, headers=headers, timeout=timeout, allow_redirects=allow_redirects)
+            r = requests.post(url, data=data, headers=headers, cookies=c, timeout=timeout, allow_redirects=allow_redirects)
         r.raise_for_status()
         result = r.text
         return r

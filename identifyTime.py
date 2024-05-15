@@ -7,7 +7,7 @@ from urlQuery import sendReq
 from requests.exceptions import HTTPError
 
 # Identify SQL Injection Vuln
-def identifyMySQLTime(url, params, payloads, d):
+def identifyMySQLTime(url, params, payloads, d, cookies=None):
     # Add some headers. Might change to different one later.
     headers = {
         'User-Agent': 'Mozilla/5.0'
@@ -20,7 +20,7 @@ def identifyMySQLTime(url, params, payloads, d):
                 try:
                     # Send the request with the payload
                     start = time.time()
-                    r1 = sendReq(url, data=params, headers=headers) if d else sendReq(url, params=params, headers=headers)
+                    r1 = sendReq(url, data=params, headers=headers, cookies=cookies) if d else sendReq(url, params=params, headers=headers, cookies=cookies)
                     end = time.time()
                     t = end - start
                     if t >= 2:
