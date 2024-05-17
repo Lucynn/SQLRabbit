@@ -109,7 +109,7 @@ def nonBooleanBasedOptimisedSQLANDing(url, paramValues, vulnParam, payload1, pay
             print (Fore.WHITE + f"[*] Starting modification: {func}" + Fore.RESET)
             r2, info = extractLightspeedMain(url, paramValues, vulnParam, mFunc(payload1), mFunc(payload2), mFunc(payload3), rT1, rT2, rT3, rT4, rT5, rT6, rT7, d, tbl=tbl, clm=clm, cookies=cookies)
             if r2:
-                print (Fore.GREEN + f"[+] Vulnerability Found with modification: {func} in {vulnParams} parameter" + Fore.RESET)
+                print (Fore.GREEN + f"[+] Vulnerability Found with modification: {func} in {vulnParam} parameter" + Fore.RESET)
                 displayInfo(info)
                 success = True
                 return True
