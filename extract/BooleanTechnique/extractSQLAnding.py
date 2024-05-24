@@ -21,7 +21,7 @@ def prepPayloadSQLANDing(params, vulnPoint, payloads, row, extract, pos, x1, x2,
 
 def boolenTF(url, params, t, f, d, cookies=None):
     r = sendReq(url, data=params, cookies=cookies, allow_redirects=False) if d else sendReq(url, params=params, cookies=cookies, allow_redirects=False)
-    if r.status_code == 200 and r.status_code != 500 and (t.text == r.text and r.text != f.text):
+    if r is not None and r.status_code == 200 and r.status_code != 500 and (t.text == r.text and r.text != f.text):
         return True
     return False
 
